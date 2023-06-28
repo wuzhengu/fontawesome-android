@@ -1,0 +1,49 @@
+apply plugin: 'com.android.application'
+//apply plugin: 'kotlin-android'
+
+android {
+    compileOptions {
+        sourceCompatibility 8
+        targetCompatibility 8
+    }
+
+    compileSdkVersion 32
+
+    defaultConfig {
+        targetSdkVersion 32
+        minSdkVersion 23
+        versionCode 100
+        versionName "1.0.0"
+        applicationId "com.myapp"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("$rootDir/release.jks")
+            storePassword 'release'
+            keyPassword 'release'
+            keyAlias 'release'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.release
+        }
+        release {
+            signingConfig signingConfigs.release
+            debuggable false
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation fileTree(dir: "libs", include: ["*.aar"])
+
+    //implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+}
