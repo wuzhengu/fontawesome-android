@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- version -->
-    <string name="fa__font_version">6.4.0</string>
-    <string name="fa__text_version">v5</string>
-
     <string name="fa_ad">&#xf641;</string>
     <string name="fa_address_book">&#xf2b9;</string>
     <string name="fa_address_card">&#xf2bb;</string>
