@@ -3,3 +3,77 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion 32
 }
+
+task strings(group: 'fa') doLast {
+    def input = rootProject.file("metadata/icons.json")
+
+    def output = [
+        strings: [
+            count: 0,
+            file: project.file("src/main/res/values/strings.xml"),
+        ],
+        brands: [
+            count: 0,
+            file: project.file("src/main/res/values/brands.xml"),
+        ],
+        asciis: [
+            count: 0,
+            file: project.file("src/main/res/values/asciis.xml"),
+        ],
+    ]
+
+    output.values().each {
+        it.file.write('<?xml version="1.0" encoding="utf-8"?>\n<resources>')
+    }
+
+    input = new groovy.json.JsonSlurper().parse(input) as Map
+    println "input " + input.size()
+
+    def asciis = [:] as Map<String, String>
+
+    def count = 0
+    for(e in input.entrySet()){
+        //if(count++ >= 20) break
+
+        def name = e.key.toString().replaceAll("[^\\w\\d]", "_")
+        //println name != e.key? "$name($e.key):": "$name:"
+
+        def code = e.value['unicode'] as String
+        while(code.length() < 4) code = "0" + code
+        //println "  $code"
+
+        def value = "\\u$code"
+
+        if(Integer.valueOf(code, 16) < 0x7f){
+            asciis.put(name, value)
+            continue
+        }
+
+        def styles = e.value['styles'] as List
+        //println "  $styles"
+
+        if(styles.contains('brands')){
+            output.brands.count++
+            output.brands.file.append("""\n    <string name="fa_brand_${name}">$value</string>""")
+            if(styles.size() == 1) continue
+        }
+
+        output.strings.count++
+        output.strings.file.append("""\n    <string name="fa_${name}">$value</string>""")
+    }
+
+    asciis.sort { a, b ->
+        a.value <=> b.value
+    }.forEach { name, value ->
+        output.asciis.count++
+        output.asciis.file.append("""\n    <string name="fa_ascii_${name}">$value</string>""")
+    }
+
+    output.values().each {
+        it.file.append('\n</resources>\n')
+    }
+
+    println "output\n" + output.collect {
+        "  " + [it.value.file, it.value.count].join(' ')
+    }.join("\n")
+}
